@@ -1,4 +1,4 @@
-namespace WebSock;
+namespace WebSock.Abstractions;
 
 public class MalformedHandshakeException : WebSockException
 {

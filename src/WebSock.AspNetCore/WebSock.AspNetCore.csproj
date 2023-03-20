@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebSock\WebSock.csproj" />
+    <ProjectReference Include="..\WebSock.Abstractions\WebSock.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
