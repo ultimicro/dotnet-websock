@@ -16,32 +16,26 @@ internal sealed class WebSockMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        // Check if the connection has "Connection: Upgrade" header.
-        var upgrade = context.Features.Get<IHttpUpgradeFeature>();
+        // Build the HTTP feature.
+        IWebSockFeature? feature;
 
-        if (upgrade?.IsUpgradableRequest == true)
+        try
         {
-            // Build the HTTP feature.
-            IWebSockFeature? feature;
+            feature = BuildWebSockFeature(context);
+        }
+        catch (MalformedHandshakeException)
+        {
+            // If the server, while reading the handshake, finds that the client did not send a handshake that matches the description below (note that as
+            // per [RFC2616], the order of the header fields is not important), including but not limited to any violations of the ABNF grammar specified
+            // for the components of the handshake, the server MUST stop processing the client's handshake and return an HTTP response with an appropriate
+            // error code (such as 400 Bad Request).
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
 
-            try
-            {
-                feature = BuildWebSockFeature(context);
-            }
-            catch (MalformedHandshakeException)
-            {
-                // If the server, while reading the handshake, finds that the client did not send a handshake that matches the description below (note that as
-                // per [RFC2616], the order of the header fields is not important), including but not limited to any violations of the ABNF grammar specified
-                // for the components of the handshake, the server MUST stop processing the client's handshake and return an HTTP response with an appropriate
-                // error code (such as 400 Bad Request).
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return;
-            }
-
-            if (feature is not null)
-            {
-                context.Features.Set(feature);
-            }
+        if (feature is not null)
+        {
+            context.Features.Set(feature);
         }
 
         await this.next.Invoke(context);
@@ -65,28 +59,36 @@ internal sealed class WebSockMiddleware
             return null;
         }
 
-        // A |Sec-WebSocket-Key| header field with a base64-encoded (see Section 4 of [RFC4648]) value that, when decoded, is 16 bytes in length.
-        var value = headers["Sec-WebSocket-Key"];
+        // A |Connection| header field that includes the token "Upgrade", treated as an ASCII case-insensitive value.
+        var upgrade = context.Features.Get<IHttpUpgradeFeature>();
 
-        if (value == StringValues.Empty)
+        if (upgrade is null)
+        {
+            throw new MalformedHandshakeException("Missing 'Connection' header.");
+        }
+        else if (!upgrade.IsUpgradableRequest)
+        {
+            throw new MalformedHandshakeException("Header 'Connection' has invalid value.");
+        }
+
+        // A |Sec-WebSocket-Key| header field with a base64-encoded (see Section 4 of [RFC4648]) value that, when decoded, is 16 bytes in length.
+        var key = headers["Sec-WebSocket-Key"];
+
+        if (key == StringValues.Empty)
         {
             throw new MalformedHandshakeException("Missing 'Sec-WebSocket-Key' header.");
         }
 
-        byte[] key;
-
         try
         {
-            key = Convert.FromBase64String(value);
+            if (Convert.FromBase64String(key).Length != 16)
+            {
+                throw new MalformedHandshakeException("Header 'Sec-WebSocket-Key' has invalid value.");
+            }
         }
         catch (FormatException ex)
         {
             throw new MalformedHandshakeException("Header 'Sec-WebSocket-Key' has invalid value.", ex);
-        }
-
-        if (key.Length != 16)
-        {
-            throw new MalformedHandshakeException("Header 'Sec-WebSocket-Key' has invalid value.");
         }
 
         // A |Sec-WebSocket-Version| header field, with a value of 13.
@@ -95,6 +97,6 @@ internal sealed class WebSockMiddleware
             throw new MalformedHandshakeException("Header 'Sec-WebSocket-Version' has invalid value.");
         }
 
-        return new WebSockFeature();
+        return new WebSockFeature(context, upgrade, key);
     }
 }
