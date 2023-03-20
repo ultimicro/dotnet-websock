@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSock.AspNetCore", "WebSo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSock.AspNetCore.Tests", "WebSock.AspNetCore.Tests\WebSock.AspNetCore.Tests.csproj", "{132FA3B5-A2FB-4999-BA71-29AF3B3CC115}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSock.Abstractions", "WebSock.Abstractions\WebSock.Abstractions.csproj", "{FFF680AA-DA9B-4FEB-A959-0D038716EBF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSock.Abstractions.Tests", "WebSock.Abstractions.Tests\WebSock.Abstractions.Tests.csproj", "{9931AD3F-5C0F-4913-8B5B-EDAA81FC90BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{132FA3B5-A2FB-4999-BA71-29AF3B3CC115}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{132FA3B5-A2FB-4999-BA71-29AF3B3CC115}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{132FA3B5-A2FB-4999-BA71-29AF3B3CC115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFF680AA-DA9B-4FEB-A959-0D038716EBF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFF680AA-DA9B-4FEB-A959-0D038716EBF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFF680AA-DA9B-4FEB-A959-0D038716EBF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFF680AA-DA9B-4FEB-A959-0D038716EBF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9931AD3F-5C0F-4913-8B5B-EDAA81FC90BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9931AD3F-5C0F-4913-8B5B-EDAA81FC90BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9931AD3F-5C0F-4913-8B5B-EDAA81FC90BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9931AD3F-5C0F-4913-8B5B-EDAA81FC90BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
