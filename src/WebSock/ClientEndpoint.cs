@@ -1,5 +1,10 @@
 namespace WebSock;
 
+using System.Buffers;
+
+/// <summary>
+/// A WebSocket connection that is connected to the client.
+/// </summary>
 public sealed class ClientEndpoint : WebSock
 {
     /// <summary>
@@ -17,5 +22,11 @@ public sealed class ClientEndpoint : WebSock
     public ClientEndpoint(Stream connection)
         : base(connection)
     {
+    }
+
+    protected override IMemoryOwner<byte>? GenerateMaskingKey()
+    {
+        // A server MUST NOT mask any frames that it sends to the client.
+        return null;
     }
 }

@@ -1,11 +1,15 @@
 namespace WebSock;
 
+using System.Buffers;
 using System.IO;
 using System.Net;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using global::WebSock.Abstractions;
 
+/// <summary>
+/// A WebSocket connection that is connected to the server.
+/// </summary>
 public sealed class ServerEndpoint : WebSock
 {
     /// <summary>
@@ -250,5 +254,29 @@ public sealed class ServerEndpoint : WebSock
         }
 
         // We can't dispose the response in case of success because it will also dispose the underlying stream.
+    }
+
+    protected override IMemoryOwner<byte>? GenerateMaskingKey()
+    {
+        // To avoid confusing network intermediaries (such as intercepting proxies) and for security reasons that are further discussed in Section 10.3, a
+        // client MUST mask all frames that it sends to the server (see Section 5.3 for further details). (Note that masking is done whether or not the
+        // WebSocket Protocol is running over TLS.)
+        var key = MemoryPool<byte>.Shared.Rent(4);
+
+        try
+        {
+            // The masking key is a 32-bit value chosen at random by the client. When preparing a masked frame, the client MUST pick a fresh masking key from
+            // the set of allowed 32-bit values. The masking key needs to be unpredictable; thus, the masking key MUST be derived from a strong source of
+            // entropy, and the masking key for a given frame MUST NOT make it simple for a server/proxy to predict the masking key for a subsequent frame.
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(key.Memory.Span[..4]);
+        }
+        catch
+        {
+            key.Dispose();
+            throw;
+        }
+
+        return key;
     }
 }
